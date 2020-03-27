@@ -32,7 +32,7 @@ let initialWizard = {
                 My first tab content
               </tab-content>
               <tab-content title="Additional Info"
-                           v-if="showSecondStep" 
+                           v-if="showSecondStep"
                            icon="ti-settings">
                 My second tab content
               </tab-content>
@@ -66,7 +66,10 @@ let routerWizard = {
                              icon="ti-check">
                 </tab-content>
                  <router-view></router-view>
-              </form-wizard>`
+              </form-wizard>`,
+  methods: {
+    changeTab: sinon.stub()
+  }
 }
 
 const divSlot = `<div>
@@ -311,7 +314,7 @@ describe('FormWizard.vue', () => {
       threeStepWizard = {
         template: `<form-wizard :validate-on-back="true">
               <tab-content title="Personal details"
-                           
+
                            :before-change="validationMethod"
                            icon="ti-user">
                 My first tab content
@@ -360,30 +363,26 @@ describe('FormWizard.vue', () => {
       expect(threeStepWizard.methods.validationMethod.called).to.equal(true)
       expect(wizardInstance.vm.activeTabIndex).to.equal(0)
     })
-    it('promise', (done) => {
+    it('promise', async () => {
       threeStepWizard.methods.validationMethod = sinon.stub()
       threeStepWizard.methods.validationMethod.returns(Promise.resolve(true))
       const wizard = mount(threeStepWizard, {localVue})
       const wizardInstance = wizard.find(FormWizard)
       wizardInstance.vm.nextTab()
       expect(threeStepWizard.methods.validationMethod.called).to.equal(true)
-      Vue.nextTick(() => {
-        expect(wizardInstance.vm.activeTabIndex).to.equal(1)
-        done()
-      })
+      await Vue.nextTick()
+      expect(wizardInstance.vm.activeTabIndex).to.equal(1)
     })
 
-    it('failing promise', (done) => {
+    it('failing promise', async () => {
       threeStepWizard.methods.validationMethod = sinon.stub()
       threeStepWizard.methods.validationMethod.returns(Promise.reject(false))
       const wizard = mount(threeStepWizard, {localVue})
       const wizardInstance = wizard.find(FormWizard)
       wizardInstance.vm.nextTab()
       expect(threeStepWizard.methods.validationMethod.called).to.equal(true)
-      Vue.nextTick(() => {
-        expect(wizardInstance.vm.activeTabIndex).to.equal(0)
-        done()
-      })
+      await Vue.nextTick()
+      expect(wizardInstance.vm.activeTabIndex).to.equal(0)
     })
   })
   describe('after change', () => {
@@ -391,7 +390,7 @@ describe('FormWizard.vue', () => {
       threeStepWizard = {
         template: `<form-wizard>
               <tab-content title="Personal details"
-                           
+
                            :after-change="validationMethod"
                            icon="ti-user">
                 My first tab content
@@ -428,16 +427,26 @@ describe('FormWizard.vue', () => {
       wizardInstance.vm.nextTab()
       wizardInstance.vm.prevTab()
       expect(threeStepWizard.methods.validationMethod.should.have.been.called)
-    }) 
+    })
   })
-  describe('with vue-router', ()=> {
+  describe('with vue-router', () => {
     it('renders correct tab contents', () => {
       const wizard = mount(routerWizard, {localVue, router})
       const wizardInstance = wizard.find(FormWizard)
       let tabs = wizardInstance.findAll(WizardTab)
-      let firstTab  = tabs.at(0)
+      let firstTab = tabs.at(0)
       expect(tabs.length).to.equal(3)
       expect(firstTab.vm.route).to.equal(wizardInstance.vm.$route.path)
+    })
+
+    it('does not navigate to the same route twice', () => {
+      const wizard = mount(routerWizard, {localVue, router})
+      const wizardInstance = wizard.find(FormWizard)
+      wizardInstance.vm.changeTab = sinon.stub()
+      wizardInstance.vm.navigateToTab(0)
+
+      expect(wizardInstance.vm.changeTab.should.not.have.been.called)
+      expect(routerWizard.methods.changeTab.should.not.have.been.called)
     })
 
     it('adapts to valid route changes when steps are visited', (done) => {
@@ -452,8 +461,6 @@ describe('FormWizard.vue', () => {
         expect(secondTab.vm.active).to.equal(true)
         done()
       })
-
-
     })
   })
 })

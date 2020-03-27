@@ -275,6 +275,9 @@
         })
       },
       navigateToTab (index) {
+        if (index === this.activeTabIndex) {
+          return
+        }
         let validate = index > this.activeTabIndex
         if (index <= this.maxStep) {
           let cb = () => {
