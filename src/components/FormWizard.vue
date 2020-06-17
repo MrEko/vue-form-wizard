@@ -241,7 +241,7 @@
         // if a step is added before the current one, go to it
         if (index < this.activeTabIndex + 1) {
           this.maxStep = index
-          this.changeTab(this.activeTabIndex + 1, index)
+          this.navigateToTab(index)
         }
       },
       removeTab (item) {
