@@ -1,6 +1,6 @@
 {
   "name": "vue-form-wizard",
-  "version": "0.8.4",
+  "version": "0.9.0",
   "description": "A vue based tab/form wizard",
   "main": "dist/vue-form-wizard.js",
   "files": [
@@ -30,7 +30,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/cristijora/vue-form-wizard"
+    "url": "https://github.com/MrEko/vue-form-wizard"
   },
   "devDependencies": {
     "autoprefixer": "^7.2.2",
